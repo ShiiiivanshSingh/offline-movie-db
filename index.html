@@ -79,7 +79,26 @@ outline: none;
 .search-bar input::placeholder {
 color: #6b6b6f;
 }
-.search-bar button {
+.search-clear-btn {
+flex-shrink: 0;
+width: 26px;
+height: 26px;
+border-radius: 50%;
+background: #232427;
+border: none;
+color: #9a9a9a;
+display: none;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+padding: 0;
+transition: background 0.12s ease, color 0.12s ease;
+}
+.search-clear-btn:hover {
+background: #2f3034;
+color: #f0f0f0;
+}
+.search-bar button#searchBtn {
 background: #ff8000;
 color: #111;
 border: none;
@@ -92,7 +111,7 @@ cursor: pointer;
 letter-spacing: 0.2px;
 transition: background 0.15s ease;
 }
-.search-bar button:hover {
+.search-bar button#searchBtn:hover {
 background: #ff9425;
 }
 .controls-bar {
@@ -1063,6 +1082,9 @@ letter-spacing: 0.5px;
 <div class="search-bar">
 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
 <input type="text" id="searchInput" placeholder="Search your collection...">
+<button class="search-clear-btn" id="searchClearBtn" type="button" title="Clear search" aria-label="Clear search">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+</button>
 <button id="searchBtn">Search</button>
 </div>
 <div class="controls-bar">
@@ -1194,6 +1216,7 @@ const gridEl = document.getElementById('grid');
 const countEl = document.getElementById('count');
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
+const searchClearBtn = document.getElementById('searchClearBtn');
 const emptyState = document.getElementById('emptyState');
 const emptyStateMessage = document.getElementById('emptyStateMessage');
 const seeHowBtn = document.getElementById('seeHowBtn');
@@ -1311,6 +1334,9 @@ return text;
 function letterboxdUrl(m) {
 return 'https://letterboxd.com/search/films/' + encodeURIComponent(m.plainTitle) + '/';
 }
+function updateClearBtn() {
+searchClearBtn.style.display = searchInput.value ? 'flex' : 'none';
+}
 function render() {
 const sorted = getSorted();
 const q = searchInput.value.trim().toLowerCase();
@@ -1405,10 +1431,24 @@ render();
 sortNameBtn.addEventListener('click', () => setSort('name'));
 sortYearBtn.addEventListener('click', () => setSort('year'));
 sortWatchedBtn.addEventListener('click', () => setSort('watched'));
-searchInput.addEventListener('input', render);
+searchInput.addEventListener('input', () => {
+updateClearBtn();
+render();
+});
 searchBtn.addEventListener('click', render);
+searchClearBtn.addEventListener('click', () => {
+searchInput.value = '';
+updateClearBtn();
+render();
+searchInput.focus();
+});
 searchInput.addEventListener('keydown', e => {
 if (e.key === 'Enter') render();
+if (e.key === 'Escape') {
+searchInput.value = '';
+updateClearBtn();
+render();
+  }
 });
 function updatePosterInDom(m) {
 const card = gridEl.querySelector('.card[data-title="' + CSS.escape(m.title) + '"]');
